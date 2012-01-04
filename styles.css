@@ -1,2 +1,6 @@
 .no-support-message { display:none; }
 .impress-not-supported .no-support-message { display:block; }
+
+/* additional styles just to make things look a bit nicer */
+body { background:#EBEBEB; font:16px/24px "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; color:#333; }
+.step { width:940px; margin:0 auto 24px auto; text-align:center; }
