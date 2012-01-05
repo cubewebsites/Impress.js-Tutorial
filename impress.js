@@ -184,6 +184,8 @@
 
     // making given step active
 
+    var active = null;
+    
     var select = function ( el ) {
         if ( !el || !el.stepData ) {
             // selected element is not defined as step
@@ -202,8 +204,8 @@
         
         var step = el.stepData;
         
-        if ( $(".step.active", impress) ) {
-            $(".step.active", impress).classList.remove("active");
+        if ( active ) {
+            active.classList.remove("active");
         }
         el.classList.add("active");
         
@@ -234,6 +236,9 @@
         var zoomin = target.scale.x >= current.scale.x;
         
         css(impress, {
+            // to keep the perspective look similar for different scales
+            // we need to 'scale' the perspective, too
+            perspective: step.scale.x * 1000 + "px",
             transform: scale(target.scale),
             transitionDelay: (zoomin ? "500ms" : "0ms")
         });
@@ -244,6 +249,7 @@
         });
         
         current = target;
+        active = el;
         
         return el;
     }
@@ -252,7 +258,6 @@
     
     document.addEventListener("keydown", function ( event ) {
         if ( event.keyCode == 9 || ( event.keyCode >= 32 && event.keyCode <= 34 ) || (event.keyCode >= 37 && event.keyCode <= 40) ) {
-            var active = $(".step.active", impress);
             var next = active;
             switch( event.keyCode ) {
                 case 33: ; // pg up
@@ -279,20 +284,25 @@
 
     document.addEventListener("click", function ( event ) {
         // event delegation with "bubbling"
-        // check if event target (or any of its parents it a link)
+        // check if event target (or any of its parents is a link or a step)
         var target = event.target;
-        while ( (target.tagName != "A") && (target != document.body) ) {
+        while ( (target.tagName != "A") &&
+                (!target.stepData) &&
+                (target != document.body) ) {
             target = target.parentNode;
         }
         
         if ( target.tagName == "A" ) {
             var href = target.getAttribute("href");
             
-            // if it's a link to presentation step, select this step
-            if ( href && href[0] == '#' && ( target = byId(href.slice(1)) ) ) {
-                select(target);
-                event.preventDefault();
+            // if it's a link to presentation step, target this step
+            if ( href && href[0] == '#' ) {
+                target = byId( href.slice(1) );
             }
+        }
+        
+        if ( select(target) ) {
+            event.preventDefault();
         }
     });
     
@@ -311,4 +321,3 @@
     select(getElementFromUrl() || steps[0]);
 
 })(document, window);
-
